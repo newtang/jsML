@@ -95,7 +95,7 @@ function guessType(topK){
     for(var prop in types){
         if(types[prop] > maxNum){
             maxNum = types[prop];
-            maxType = type;
+            maxType = prop;
         }
     }
 
@@ -114,7 +114,8 @@ function distances(nodes, minMax, unknown){
         var sum = 0;
         for(var prop in ranges){
 
-             sum += Math.pow((n[prop] / ranges[prop]), 2);
+
+             sum += Math.pow(( (unknown[prop] - n[prop]) / ranges[prop]), 2);
 
         }
         distances.push({node: n, distance: Math.sqrt(sum)});
