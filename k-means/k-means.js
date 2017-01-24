@@ -21,16 +21,86 @@ var data = [
     [8, 11],
     [9, 9],
 ];
-
+start();
 function start(){
     const k = 3;
     let extremes = calcExtremes(data);
     let ranges = calcRanges(extremes);
 
+    //these are the random points added
     let means = initMeans(k, ranges, extremes);
+
+    //these are the closest points to each random point
     let assignments = calcAssignments(data, means);
+    
+    draw(means, data, assignments, extremes, ranges);
+
+
+    setTimeout(run.bind(null, data, means, extremes, ranges), 1000);
+
+
 }
 
+function run(data, means, extremes, ranges){
+    let origMeans = means;
+    let assignments = calcAssignments(data, means);
+    means = moveMeans(data, means, assignments);
+    if(origMeans.join(",") !== means.join(",")){
+        draw(means, data, assignments, extremes, ranges);
+        setTimeout(run.bind(null, data, means, extremes, ranges), 1000);
+    }
+}
+
+function moveMeans(data, means, assignments){
+    let sumPerAssignment = [];
+    let countPerAssignment = [];
+
+    for(let i=0; i<assignments.length; ++i){
+        let assignMeanNum = assignments[i];
+        if(!countPerAssignment[assignMeanNum]){
+             countPerAssignment[assignMeanNum] = 0;
+        }
+
+        countPerAssignment[assignMeanNum]++;
+        
+        if(!sumPerAssignment[assignMeanNum]){
+            sumPerAssignment[assignMeanNum] = [];
+        }
+
+        let datum = data[i];
+
+        for(let j=0; j<datum.length; ++j){
+            if(!sumPerAssignment[assignMeanNum][j]){
+                sumPerAssignment[assignMeanNum][j] = 0;
+            }
+            sumPerAssignment[assignMeanNum][j] += datum[j];
+        }
+    }
+
+    let newMeans = [];
+
+    for(let i=0; i<sumPerAssignment.length; ++i){
+        let newMean = [];
+        if(sumPerAssignment[i]){
+            for(let j=0; j<sumPerAssignment[i].length; ++j){
+                let sum = sumPerAssignment[i][j];
+                newMean[j] = sum / countPerAssignment[i];
+            }
+        }
+        else{
+            newMean = [0, 0];
+        }
+        
+        newMeans.push(newMean);
+    }
+
+    return newMeans;
+
+
+}
+
+
+//the ith data maps to 1 through k
 function calcAssignments(data, means){
     let assignments = [];
     for (let i=0; i<data.length; ++i){
@@ -41,6 +111,7 @@ function calcAssignments(data, means){
         }
         assignments[i] = getMinIndex(distances);
     }
+    return assignments;
 }
 
 function getMinIndex(arr){
@@ -67,7 +138,7 @@ function calcDistance(p1, p2){
 
 
 
-
+//creates random k points
 function initMeans(k, ranges, extremes){
     let means = [];
     while(k>0){
@@ -111,3 +182,82 @@ function calcExtremes(data){
     }
     return extremes;
 }
+
+
+function draw(means, data, assignments, dataExtremes, dataRange) {
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    var height = 400;
+    var width = 400;
+
+    ctx.clearRect(0,0,width, height);
+
+    ctx.globalAlpha = 0.3;
+    for (var point_index in assignments)
+    {
+        var mean_index = assignments[point_index];
+        var point = data[point_index];
+        var mean = means[mean_index];
+
+        ctx.save();
+
+        ctx.strokeStyle = 'blue';
+        ctx.beginPath();
+        ctx.moveTo(
+            (point[0] - dataExtremes[0].min + 1) * (width / (dataRange[0] + 2) ),
+            (point[1] - dataExtremes[1].min + 1) * (height / (dataRange[1] + 2) )
+        );
+        ctx.lineTo(
+            (mean[0] - dataExtremes[0].min + 1) * (width / (dataRange[0] + 2) ),
+            (mean[1] - dataExtremes[1].min + 1) * (height / (dataRange[1] + 2) )
+        );
+        ctx.stroke();
+        ctx.closePath();
+    
+        ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+
+    for (var i in data)
+    {
+        ctx.save();
+
+        var point = data[i];
+
+        var x = (point[0] - dataExtremes[0].min + 1) * (width / (dataRange[0] + 2) );
+        var y = (point[1] - dataExtremes[1].min + 1) * (height / (dataRange[1] + 2) );
+
+        ctx.strokeStyle = '#333333';
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI*2, true);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.restore();
+    }
+
+    for (var i in means)
+    {
+        ctx.save();
+
+        var point = means[i];
+
+        var x = (point[0] - dataExtremes[0].min + 1) * (width / (dataRange[0] + 2) );
+        var y = (point[1] - dataExtremes[1].min + 1) * (height / (dataRange[1] + 2) );
+
+        ctx.fillStyle = 'green';
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI*2, true);
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.restore();
+
+    }
+
+}
+
+
+
