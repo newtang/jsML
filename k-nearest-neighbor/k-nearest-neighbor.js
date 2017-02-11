@@ -32,7 +32,7 @@ var run = function() {
         nodes = [];
 
     for (var obj of data){
-        nodes.push( Object.assign(obj) );
+        nodes.push( Object.assign({}, obj) );
     }
 
     var random_rooms = Math.round( Math.random() * 10 );
