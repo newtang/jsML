@@ -1,0 +1,37 @@
+<html>
+<head>
+<style>
+        body {
+            font-family:Helvetica, Arial, sans-serif;
+            font-size:14px;
+        }
+        table, div, input {
+            width: 200px;
+            margin:10px auto;
+        }
+</style>
+</head>
+<body>
+     <table>
+        <tr>
+            <td><strong>Generation</strong></td>
+            <td id="gen_no"></td>
+        <tr>
+            <td><strong>Best Value</strong></td>
+            <td id="value"></td>
+        <tr>
+            <td><strong>Weight</strong></td>
+            <td id="weight"></td>
+        <tr>
+            <td><strong>No change in</strong></td>
+            <td id="nochange"></td>
+    </table>
+    <div>
+        <input type="range" min=1 max=1000 value=100 id="runfor" onchange="document.getElementById('runforspan').innerHTML=this.value;">
+        <br>
+        <button id="runbutton">Run for <span id='runforspan'>100</span>-generation threshold</button>
+
+    </div>
+<script src = "genetic-algorithm-part2.js"></script>
+</body>
+</html>
