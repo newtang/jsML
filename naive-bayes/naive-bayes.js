@@ -121,6 +121,13 @@ var Bayes = (function(){
 			            wordicity = 0.99;
 			        }
 
+			        /**
+			        The logSum line isn't really a part of the mathematical equations, but is rather a practical consideration. After calculating the wordicity for each word, we need to combine those probabilities somehow. The normal mathematical way to do that would be to multiply each probability together and divide by the multiplication of all the inverses. Unfortunately, floating point math isn't perfect and you can run into "floating point underflow", where the number gets too small for floating point math to deal with. So instead, we take a log of the numerator and denominator (combined probabilities and their inverses), and add up the logs.
+
+					Finally, after we've combined all the individual word probabilities with the logSum line, we undo the log function we just used to get the probability back in the 0 to 1 range. Note that this happens outside of the "look at each word" loop but still inside the "look at each label" loop.
+					**/
+
+
 			        logSum += (Math.log(1 - wordicity) - Math.log(wordicity));
 
 				}
